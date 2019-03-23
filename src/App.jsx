@@ -44,8 +44,7 @@ class App extends Component {
     color: this.props.color
   }
   render() {
-    const { color } = this.state
-    return <div className="App">Hello world!{color}</div>
+    return <div className="App">Hello world!</div>
   }
 }
 
