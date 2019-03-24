@@ -7,15 +7,24 @@ import NewsPage from './components/pages/newsPage/newsPage'
 import Page404 from './components/pages/page404/page404'
 import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom'
 
-const RouteWithSubRoutes = route => {
-  const exact = route.path === '/' ? true : false
+const renderRoutes = routes => {
   return (
     <Switch>
-      <Route
-        path={route.path}
-        exact={exact}
-        render={props => <route.component {...props} routes={route.routes} />}
-      />
+      {[
+        ...routes.map(route => {
+          const exact = route.path === '/' ? true : false
+          return (
+            <Route
+              path={route.path}
+              exact={exact}
+              render={props => (
+                <route.component {...props} routes={route.routes} />
+              )}
+            />
+          )
+        }),
+        <Route render={Page404} />
+      ]}
     </Switch>
   )
 }
@@ -29,14 +38,7 @@ const routes = [
   {
     path: '/login',
     component: LoginPage,
-    name: 'Авторизация',
-    routes: [
-      {
-        path: '/login/login1',
-        component: () => <div>login1</div>,
-        name: 'Авторизация1'
-      }
-    ]
+    name: 'Авторизация'
   },
   {
     path: '/profile',
@@ -50,16 +52,14 @@ const routes = [
   }
 ]
 
-class MyRouter extends Router {}
-
 class App extends Component {
   render() {
     return (
-      <MyRouter>
+      <Router>
         <div className="App">
           <header className="header">
             <nav>
-              <Link key="contact1" to="/login/login1">
+              <Link key="contact1" to="/login1">
                 Контакты1
               </Link>
               {routes.map(item => (
@@ -69,15 +69,9 @@ class App extends Component {
               ))}
             </nav>
           </header>
-          <main>
-            <div className="containers">
-              {routes.map(route => (
-                <RouteWithSubRoutes key={route.path} {...route} />
-              ))}
-            </div>
-          </main>
+          <main>{renderRoutes(routes)}</main>
         </div>
-      </MyRouter>
+      </Router>
     )
   }
 }
