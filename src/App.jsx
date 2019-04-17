@@ -13,37 +13,60 @@ import {
   Redirect
 } from 'react-router-dom'
 
-const renderRoutes = routes => {
-  return (
-    <Switch>
-      {[
-        ...routes.map(route => {
-          const exact = route.path === '/' ? true : false
-          if (!route.private) {
-            return (
-              <Route
-                path={route.path}
-                exact={exact}
-                render={props => <route.component {...props} />}
-              />
-            )
-          } else {
-            return (
-              <PrivateRoute
-                path={route.path}
-                exact={exact}
-                component={route.component}
-              />
-            )
-          }
-        }),
-        <Route render={Page404} />
-      ]}
-    </Switch>
-  )
+const renderRoutes = (routes, loginActon) => {
+  if (fakeAuth.isAuthenticated === true) {
+    return <Redirect to={{ pathname: '/profile', state: { from: '/' } }} />
+  } else {
+    return (
+      <Switch>
+        {[
+          ...routes.map(route => {
+            const exact = route.path === '/' ? true : false
+            if (!route.private) {
+              return (
+                <Route
+                  path={route.path}
+                  exact={exact}
+                  key={route.path}
+                  render={props => <route.component {...props} />}
+                />
+              )
+            } else {
+              return (
+                <PrivateRoute
+                  path={route.path}
+                  key={route.path}
+                  exact={exact}
+                  component={route.component}
+                />
+              )
+            }
+          }),
+          <LoginRoute
+            path={'/login'}
+            exact={false}
+            key={'/login'}
+            loginAction={loginActon}
+            component={LoginPage}
+          />,
+          <Route key={'/page404'} render={Page404} />
+        ]}
+      </Switch>
+    )
+  }
 }
 
-const adminUser = { login: 'Admin', password: 12345 }
+const adminUser = { login: 'Admin', password: '12345' }
+
+const validationAdmin = (login = '', password = '') => {
+  const adminLogin = adminUser.login
+  const adminPassword = adminUser.password
+  if (login === adminLogin && password === adminPassword) {
+    return true
+  } else {
+    return false
+  }
+}
 
 const fakeAuth = {
   isAuthenticated: false,
@@ -77,16 +100,31 @@ function PrivateRoute({ component: Component, ...rest }) {
   )
 }
 
+function LoginRoute({ component: Component, ...rest }) {
+  return (
+    <Route
+      {...rest}
+      render={props =>
+        !fakeAuth.isAuthenticated ? (
+          <Component {...props} />
+        ) : (
+          <Redirect
+            to={{
+              pathname: '/profile',
+              state: { from: props.location }
+            }}
+          />
+        )
+      }
+    />
+  )
+}
+
 const routes = [
   {
     path: '/',
     component: IndexPage,
     name: 'Главная страница'
-  },
-  {
-    path: '/login',
-    component: LoginPage,
-    name: 'Авторизация'
   },
   {
     path: '/profile',
@@ -102,6 +140,16 @@ const routes = [
 ]
 
 class App extends Component {
+  state = {
+    isAuthenticated: false
+  }
+  loginActon = (e, login, password) => {
+    e.preventDefault()
+    console.log(e, login, password)
+    if (validationAdmin(login, password) === true) {
+      fakeAuth.authenticate()
+    }
+  }
   render() {
     return (
       <Router>
@@ -117,9 +165,12 @@ class App extends Component {
               <Link key="/profile" to="/profile">
                 Профиль
               </Link>
+              <Link key="/login" to="/login">
+                Логин
+              </Link>
             </nav>
           </header>
-          <main>{renderRoutes(routes)}</main>
+          <main>{renderRoutes(routes, this.loginActon)}</main>
         </div>
       </Router>
     )

@@ -1,5 +1,26 @@
+html,
+body {
+  /*
+  background-color: rgba(0,0,0, .7);
+  color: #ffffff;
+  * {
+    color: #ffffff !important;
+  }
+  input {
+    background-color: gray;
+  }
+  */
+}
+
+header {
+  min-height: 20vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
 main {
-  min-height: 100vh;
+  min-height: 80vh;
 }
 
 .login-page {
