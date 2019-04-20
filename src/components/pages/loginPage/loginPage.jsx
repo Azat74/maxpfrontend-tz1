@@ -17,8 +17,10 @@ export default function LoginPage(props) {
       return <Redirect to="/" />
     }
   }
+  const inputRef = React.createRef()
   useEffect(() => {
     // console.log(login, password)
+    // inputRef.focus()
   })
   if (AppStatus === true) {
     return handleRedirect()
@@ -30,11 +32,14 @@ export default function LoginPage(props) {
         <form
           onSubmit={e => {
             e.preventDefault()
+            console.log('submit')
             props.loginAction(e, login, password)
             setRedirect(true)
           }}
         >
           <input
+            ref={inputRef}
+            autoFocus
             defaultValue={'Admin'}
             onChange={e => setLogin(`${e.target.value}`)}
             required
